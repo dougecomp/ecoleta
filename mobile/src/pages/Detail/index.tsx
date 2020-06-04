@@ -42,7 +42,7 @@ const Detail: React.FC = () => {
       setData(response.data);
     });
 
-  });
+  }, []);
 
   function handleNavigateBack() {
     navigation.goBack();

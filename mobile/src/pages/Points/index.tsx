@@ -41,14 +41,17 @@ const Point: React.FC = () => {
 
   useEffect(() => {
 
+    let mounted = true;
     api.get<Item[]>('/items').then(response => {
-      setItems(response.data);
+      mounted && setItems(response.data);
     });
 
-  });
+    return () => {mounted = false}
+
+  }, []);
 
   useEffect(() => {
-
+    let mounted = true;
     api.get<Point[]>('/points', {
       params: {
         city,
@@ -56,13 +59,13 @@ const Point: React.FC = () => {
         items: selectedItems,
       }
     }).then(response => {
-      setPoints(response.data);
+      mounted && setPoints(response.data);
     });
-
+    return () => {mounted = false}
   }, [selectedItems]);
 
   useEffect(() => {
-
+    let mounted = true;
     async function getInitialLocation() {
       const { status } = await Location.requestPermissionsAsync();
       if (status !== 'granted') {
@@ -72,12 +75,12 @@ const Point: React.FC = () => {
 
       const location = await Location.getCurrentPositionAsync({});
       const {latitude, longitude} = location.coords;
-      setInitialPosition([latitude, longitude]);
+      mounted && setInitialPosition([latitude, longitude]);
     }
 
     getInitialLocation();
 
-  })
+  }, [])
 
   function handleNavigateBack() {
     navigation.goBack();
@@ -88,10 +91,17 @@ const Point: React.FC = () => {
   }
 
   function handleItemClick(id: number) {
-    if(selectedItems.includes(id))
+    const alreadySelected = selectedItems.findIndex(item => item === id);
+    if(alreadySelected >= 0) {
+      const filteredItems = selectedItems.filter(item => item !== id);
+      setSelectedItems(filteredItems);
+    } else {
+      setSelectedItems([...selectedItems, id]);
+    }
+    /* if(selectedItems.includes(id))
       setSelectedItems(selectedItems.filter(itemID => itemID !== id));
     else
-      selectedItems.push(id);
+      selectedItems.push(id); */
   }
 
   return (
