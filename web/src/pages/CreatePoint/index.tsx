@@ -46,11 +46,11 @@ const CreatePoint: React.FC = () => {
 
     useEffect( () => {
 
-        api.get('/items').then((response) => {
+        api.get<Item[]>('/items').then((response) => {
             setItems(response.data);
         })
 
-    }, []);
+    });
 
     useEffect(() => {
 
